@@ -2,6 +2,7 @@ import express from 'express';
 import { SERVER_PORT } from '../global/environment';
 import { createServer } from 'http'; // Cambio en la importación
 import { Server as SocketIOServer } from 'socket.io'; // Cambio en la importación
+import * as socket from '../sockets/socket';
 
 export default class Server {
 
@@ -17,9 +18,15 @@ export default class Server {
         this.app = express();
         this.port = SERVER_PORT;
         this.httpServer = createServer(this.app); // Crear el servidor HTTP con createServer
-        this.io = new SocketIOServer(this.httpServer); // Inicializar el servidor Socket.IO
+        // this.io = new SocketIOServer(this.httpServer);
+        this.io = new SocketIOServer(this.httpServer, {
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST']
+            }
+        });
+        // Inicializar el servidor Socket.IO
         this.escucharSockets();
-
     }
 
     public static get instance() {
@@ -29,10 +36,18 @@ export default class Server {
 
     private escucharSockets() {
         console.log('Escuchando conexiones - sockets');
+
         this.io.on('connection', cliente => {
             console.log('Cliente conectado');
 
-        })
+            //Chequear Mensajes
+            socket.mensaje(cliente, this.io);
+
+            //Desconectar
+            socket.desconectar(cliente);
+
+
+        });
 
     }
 
