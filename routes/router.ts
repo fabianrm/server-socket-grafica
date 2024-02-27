@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
 import Server from '../classes/server';
 import { usuariosConectados } from '../sockets/socket';
+import { GraficaData } from '../classes/grafica';
 
 const router = Router();
+
+const grafica = new GraficaData;
+
 
 router.get('/mensajes', (req: Request, res: Response) => {
     res.json({
@@ -11,6 +15,33 @@ router.get('/mensajes', (req: Request, res: Response) => {
     })
 
 });
+
+
+router.get('/grafica', (req: Request, res: Response) => {
+    res.json(grafica.getDataGrafica());
+
+});
+
+
+
+//Recuperamos datos del x-www-form-urlencoded
+router.post('/grafica', (req: Request, res: Response) => {
+
+    //parametros del postman
+    const pregunta = req.body.pregunta;
+    const valores = Number(req.body.valor);
+
+    grafica.incrementarValor(pregunta, valores);
+
+    const server = Server.instance;
+    //Enviamos mensaje a un usuario(id) en especifico
+    server.io.emit('cambio-grafica', grafica.getDataGrafica());
+
+    res.json(grafica.getDataGrafica());
+
+});
+
+
 
 
 //Recuperamos datos del x-www-form-urlencoded
