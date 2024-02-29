@@ -43,6 +43,9 @@ export default class Server {
             //Conectar cliente
             socket.conectarCliente(cliente, this.io);
 
+            //Configuracion de mapas
+            socket.mapaSockets(cliente, this.io);
+
             //Configurar Usuario
             socket.configurarUsuario(cliente, this.io);
 
